@@ -511,7 +511,14 @@ const bookmarkletCode = `javascript:void(function(){
   panel.style.cssText='position:fixed;top:0;right:0;width:420px;height:100vh;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,0.15);z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,sans-serif;display:flex;flex-direction:column;';
   var header=document.createElement('div');
   header.style.cssText='padding:16px 20px;background:#1a1a2e;color:#fff;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;';
-  header.innerHTML='<span>\\ud83d\\udd17 \\u66ff\\u4ee3URL\\u8bc6\\u522b v2 \\u2014 \\u627e\\u5230 '+results.length+' \\u4e2a</span><span style="cursor:pointer;font-size:18px;" onclick="document.getElementById(\\'alt-url-panel\\').remove()">\\u2715</span>';
+  var titleSpan=document.createElement('span');
+  titleSpan.textContent='\\ud83d\\udd17 \\u66ff\\u4ee3URL\\u8bc6\\u522b v2 \\u2014 \\u627e\\u5230 '+results.length+' \\u4e2a';
+  var closeBtn=document.createElement('span');
+  closeBtn.textContent='\\u2715';
+  closeBtn.style.cssText='cursor:pointer;font-size:18px;line-height:1;margin-left:12px;flex-shrink:0;';
+  closeBtn.onclick=function(){panel.remove();};
+  header.appendChild(titleSpan);
+  header.appendChild(closeBtn);
   panel.appendChild(header);
 
   var body=document.createElement('div');
