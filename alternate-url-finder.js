@@ -169,7 +169,14 @@
 
   var header = document.createElement('div');
   header.style.cssText = 'padding:16px 20px;background:#1a1a2e;color:#fff;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;';
-  header.innerHTML = '<span>\uD83D\uDD17 \u66FF\u4EE3URL\u8BC6\u522B v2 \u2014 \u627E\u5230 ' + results.length + ' \u4E2A</span><span style="cursor:pointer;font-size:18px;" onclick="document.getElementById(\'alt-url-panel\').remove()">\u2715</span>';
+  var titleSpan = document.createElement('span');
+  titleSpan.textContent = '\uD83D\uDD17 \u66FF\u4EE3URL\u8BC6\u522B v2 \u2014 \u627E\u5230 ' + results.length + ' \u4E2A';
+  var closeBtn = document.createElement('span');
+  closeBtn.textContent = '\u2715';
+  closeBtn.style.cssText = 'cursor:pointer;font-size:18px;line-height:1;margin-left:12px;flex-shrink:0;';
+  closeBtn.onclick = function () { panel.remove(); };
+  header.appendChild(titleSpan);
+  header.appendChild(closeBtn);
   panel.appendChild(header);
 
   var body = document.createElement('div');
