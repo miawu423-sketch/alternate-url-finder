@@ -74,6 +74,11 @@
     results.push({ type: type, url: url });
   }
 
+  // 检测 Discourse 帖子锚点：/t/slug/topicId/postNumber
+  function isDiscoursePostAnchor(url) {
+    return /^https?:\/\/[^\/?#]+\/t\/[^\/?#]+\/\d+\/\d+\/?([?#].*)?$/.test(url);
+  }
+
   // 1. canonical
   var canonical = document.querySelector('link[rel="canonical"]');
   if (canonical && canonical.href) addResult('canonical', canonical.href);
@@ -163,6 +168,7 @@
   if (shortlink && shortlink.href) addResult('shortlink', shortlink.href);
 
   // ====== Build panel ======
+  function renderPanel() {
   var panel = document.createElement('div');
   panel.id = 'alt-url-panel';
   panel.style.cssText = 'position:fixed;top:0;right:0;width:420px;height:100vh;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,0.15);z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,sans-serif;display:flex;flex-direction:column;';
@@ -188,7 +194,7 @@
     results.forEach(function (r) {
       var item = document.createElement('div');
       item.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:#f7fafc;border-radius:6px;margin-bottom:8px;font-size:13px;';
-      var colors = { canonical: '#3182ce', 'og:url': '#38a169', 'JSON-LD': '#6b46c1', 'JSON-LD url': '#6b46c1', 'JSON-LD isPartOf': '#6b46c1', 'syndication-source': '#d69e2e', 'original-source': '#d69e2e', '\u6B63\u6587\u6765\u6E90': '#805ad5', '\u767E\u5EA6\u79FB\u52A8\u9002\u914D': '#e53e3e', AMP: '#ed8936', shortlink: '#718096', '\u79FB\u52A8\u7248': '#0891b2' };
+      var colors = { canonical: '#3182ce', 'canonical(源码)': '#0ea5e9', 'og:url': '#38a169', 'JSON-LD': '#6b46c1', 'JSON-LD url': '#6b46c1', 'JSON-LD isPartOf': '#6b46c1', 'syndication-source': '#d69e2e', 'original-source': '#d69e2e', '\u6B63\u6587\u6765\u6E90': '#805ad5', '\u767E\u5EA6\u79FB\u52A8\u9002\u914D': '#e53e3e', AMP: '#ed8936', shortlink: '#718096', '\u79FB\u52A8\u7248': '#0891b2' };
       var color = colors[r.type] || '#4a5568';
       if (r.type.indexOf('data-') === 0) color = '#d69e2e';
       if (r.type.indexOf('alternate') === 0) color = '#dd6b20';
@@ -253,4 +259,22 @@
   footer.appendChild(btnOpen);
   panel.appendChild(footer);
   document.body.appendChild(panel);
+  }
+
+  // 仅 Discourse 帖子锚点：重新拉取原始 HTML，读服务端渲染的 canonical（JS 会把 DOM 里的 canonical 改写成自己）
+  if (isDiscoursePostAnchor(currentUrl)) {
+    fetch(location.href, { credentials: 'include' })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        try {
+          var doc = new DOMParser().parseFromString(html, 'text/html');
+          var c = doc.querySelector('link[rel="canonical"]');
+          if (c) addResult('canonical(源码)', c.getAttribute('href'));
+        } catch (e) { }
+        renderPanel();
+      })
+      .catch(function () { renderPanel(); });
+  } else {
+    renderPanel();
+  }
 })();
