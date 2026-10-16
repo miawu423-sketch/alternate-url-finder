@@ -74,6 +74,14 @@
 - 修复日期：2026-10-16
 - 复盘：这是 case 4（footer 按钮）同类问题的**漏网之鱼** —— 当时只修了 footer，忘了 header。以后排查按钮类问题要全文搜内联 `onclick=`。
 
+### 12. Discourse SPA 动态改写 canonical 导致提取不到规范 URL
+- 触发站点：forum.netbird.io（Discourse 论坛，Ember.js 单页应用）
+- 问题：帖子锚点页 `/t/slug/id/N`，服务端原始 HTML 里 canonical = `/t/slug/id`（主题主页），但页面 JS 加载后把 canonical 改写成当前 URL `/t/slug/id/N`（自己），还带 `og:ignore_canonical=true`。导致工具读 DOM 时 canonical=自己，被 isSamePage 过滤，提取不到主题主页。
+- 根因：SPA 客户端改写 canonical，与「查看源代码」看到的服务端 HTML 不一致（「查看源代码」是浏览器重新请求服务器，页内 JS 访问不到原始 HTML）。
+- 修复：仅针对 Discourse 帖子锚点（`/t/slug/id/N` 严格正则匹配），用 `fetch(location.href)` 重新拉取原始 HTML，DOMParser 解析后读服务端渲染的 canonical，标记为 `canonical(源码)`。
+- 修复日期：2026-10-16
+- 备注：这是「读源码 vs 读 DOM」方向的第一个落地案例。若后续 SPA 站点增多，可考虑推广为通用方案（但要注意 fetch 的性能/登录态/缓存代价）。
+
 ---
 
 ## 已知限制（不修复，属于工具能力边界）
