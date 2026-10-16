@@ -67,6 +67,13 @@
 - 修复：改用纯字符串匹配（去掉协议头后，看第一个 `/` 是否在末尾）
 - 修复日期：2026-07-17
 
+### 11. 关闭按钮（✕）在部分站点点击无反应
+- 触发站点：forum.netbird.io（Discourse 论坛）
+- 问题：header 的关闭按钮仍用内联 `onclick` 属性，Discourse 等站点的严格 CSP（Content Security Policy）会拦截内联事件处理器，导致点击无效
+- 修复：关闭按钮改用 `createElement + .onclick=` 属性绑定（不受 CSP 限制），并同步修复 .html 与远程加载版 .js 两个文件
+- 修复日期：2026-10-16
+- 复盘：这是 case 4（footer 按钮）同类问题的**漏网之鱼** —— 当时只修了 footer，忘了 header。以后排查按钮类问题要全文搜内联 `onclick=`。
+
 ---
 
 ## 已知限制（不修复，属于工具能力边界）
