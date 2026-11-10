@@ -101,6 +101,15 @@
 - 原因：网站自己 CMS 数据错误（可能是数据迁移遗留）
 - 建议做法：使用人员在验收环节人工确认内容一致性
 
+### C. 严格 CSP 网站会拦截 remote-loader 书签
+- 触发站点：boe.es（西班牙政府官方公报，www.boe.es/buscar/doc.php?id=...）
+- 现象：remote-loader 书签（点击后动态加载 github.io 上的 .js）在该站点完全无反应，控制台报错 `Loading the script '...github.io/alternate-url-finder.js?v=...' violates CSP directive 'script-src'`
+- 原因：该站 CSP 极严格，`script-src` 只允许 unsafe-inline/unsafe-eval/self/recaptcha，`connect-src` 只允许 self/recaptcha。github.io 两条路（script src 注入、fetch）都被拦。
+- 结论：remote-loader 在严格 CSP 网站**技术上无解**（CSP 就是用来拦第三方脚本的）
+- 解法：改用**内联版书签**（完整代码固化在书签 URL 里，不加载外部脚本，不受 CSP script-src 限制）。内联版代价是代码更新需重新安装。
+- 记录日期：2026-11-10
+- 关联：case 11 也是 CSP 问题（内联 onclick 被拦），说明 CSP 是这类工具的常见雷区，需关注政府/金融机构等高安全站点。
+
 ---
 
 ## 定期 Review 观察点
